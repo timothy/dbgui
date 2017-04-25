@@ -58,6 +58,9 @@ public class DBGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jTabbedPane1.setToolTipText("");
+        jTabbedPane1.setDoubleBuffered(true);
+
         btnAddAthorP1.setText("Add Author");
 
         jLabel1.setText("Author's First Name");
@@ -93,7 +96,7 @@ public class DBGUI extends javax.swing.JFrame {
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("tab1", jPanel1);
+        jTabbedPane1.addTab("Add New Author", jPanel1);
 
         btnEditAuthP2.setText("Edit Author");
 
@@ -149,7 +152,7 @@ public class DBGUI extends javax.swing.JFrame {
                 .addContainerGap(65, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("tab2", jPanel2);
+        jTabbedPane1.addTab("Edit Existing Author", jPanel2);
 
         btnAddTitleP3.setText("Add Title");
 
@@ -227,7 +230,7 @@ public class DBGUI extends javax.swing.JFrame {
                 .addContainerGap(19, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("tab3", jPanel3);
+        jTabbedPane1.addTab("Add New Title", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -245,6 +248,8 @@ public class DBGUI extends javax.swing.JFrame {
                 .addComponent(jTabbedPane1)
                 .addContainerGap())
         );
+
+        jTabbedPane1.getAccessibleContext().setAccessibleName("Add New Author");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

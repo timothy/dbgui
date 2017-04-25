@@ -5,17 +5,40 @@
  */
 package dbguiapp;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
 /**
+ * Java GUI application that allows the user to perform tasks on the books database.
  *
- * @author ^_^
+ * @author Timothy Bradford
  */
 public class DBGUI extends javax.swing.JFrame {
+
+    final String DATABASE_URL = "jdbc:derby://localhost:1527/books";
 
     /**
      * Creates new form DBGUI
      */
     public DBGUI() {
         initComponents();
+    }
+
+    public void executeQuery(String query) throws SQLException {
+        //Connect to the DataBase
+        Connection connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
+        //Execute Queries
+        connection.createStatement().executeQuery(query);
+    }
+    
+        public ResultSet getAuthorsList() throws SQLException {
+        //Connect to the DataBase
+        Connection connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
+        //Execute Queries
+        return connection.createStatement().executeQuery("SELECT FIRSTNAME, LASTNAME FROM authors");
     }
 
     /**

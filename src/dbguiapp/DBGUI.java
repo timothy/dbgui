@@ -10,6 +10,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * Java GUI application that allows the user to perform tasks on the books database.
@@ -19,26 +20,43 @@ import java.sql.SQLException;
 public class DBGUI extends javax.swing.JFrame {
 
     final String DATABASE_URL = "jdbc:derby://localhost:1527/books";
+    ArrayList<String> aNames = new ArrayList<>();
 
     /**
      * Creates new form DBGUI
      */
     public DBGUI() {
         initComponents();
+
+        try {
+            aNames = getAuthorsList();
+            
+        } // AutoCloseable objects' close methods are called now  // AutoCloseable objects' close methods are called now 
+        catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        }
+
     }
 
-    public void executeQuery(String query) throws SQLException {
+    private void executeQuery(String query) throws SQLException {
         //Connect to the DataBase
         Connection connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
         //Execute Queries
         connection.createStatement().executeQuery(query);
     }
-    
-        public ResultSet getAuthorsList() throws SQLException {
+
+    private ArrayList getAuthorsList() throws SQLException {
         //Connect to the DataBase
         Connection connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
+        ResultSet rs = connection.createStatement().executeQuery("SELECT FIRSTNAME, LASTNAME FROM authors");
+        ArrayList<String> fullNames = new ArrayList<>();
+
+        while (rs.next()) {
+            fullNames.add(rs.getString("FIRSTNAME") + " " + rs.getString("LASTNAME"));
+        }
+
         //Execute Queries
-        return connection.createStatement().executeQuery("SELECT FIRSTNAME, LASTNAME FROM authors");
+        return fullNames;
     }
 
     /**

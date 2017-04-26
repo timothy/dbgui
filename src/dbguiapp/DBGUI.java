@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 /**
  * Java GUI application that allows the user to perform tasks on the books database.
@@ -20,7 +21,9 @@ import java.util.ArrayList;
 public class DBGUI extends javax.swing.JFrame {
 
     final String DATABASE_URL = "jdbc:derby://localhost:1527/books";
+    final String qInsertAuth = "INSERT INTO Authors (FirstName, LastName) VALUES ('Sue', 'Red')";
     ArrayList<String> aNames = new ArrayList<>();
+    Connection connection;
 
     /**
      * Creates new form DBGUI
@@ -29,8 +32,8 @@ public class DBGUI extends javax.swing.JFrame {
         initComponents();
 
         try {
-            aNames = getAuthorsList();
-            
+            this.connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
+            getAuthorsList();
         } // AutoCloseable objects' close methods are called now  // AutoCloseable objects' close methods are called now 
         catch (SQLException sqlException) {
             sqlException.printStackTrace();
@@ -40,23 +43,25 @@ public class DBGUI extends javax.swing.JFrame {
 
     private void executeQuery(String query) throws SQLException {
         //Connect to the DataBase
-        Connection connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
+        //Connection connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
         //Execute Queries
-        connection.createStatement().executeQuery(query);
+        this.connection.createStatement().executeQuery(query);
     }
 
-    private ArrayList getAuthorsList() throws SQLException {
+    private void getAuthorsList() throws SQLException {
         //Connect to the DataBase
-        Connection connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
-        ResultSet rs = connection.createStatement().executeQuery("SELECT FIRSTNAME, LASTNAME FROM authors");
-        ArrayList<String> fullNames = new ArrayList<>();
+        // connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
+
+        //Execute Querie
+        ResultSet rs = this.connection.createStatement().executeQuery("SELECT FIRSTNAME, LASTNAME, AUTHORID FROM authors ORDER BY AUTHORID");
+        cboxP2.removeAllItems();
+        cboxP3.removeAllItems();
 
         while (rs.next()) {
-            fullNames.add(rs.getString("FIRSTNAME") + " " + rs.getString("LASTNAME"));
+            cboxP2.addItem(rs.getString("LASTNAME") + ", " + rs.getString("FIRSTNAME"));
+            cboxP3.addItem(rs.getString("LASTNAME") + ", " + rs.getString("FIRSTNAME"));
         }
 
-        //Execute Queries
-        return fullNames;
     }
 
     /**
@@ -103,6 +108,11 @@ public class DBGUI extends javax.swing.JFrame {
         jTabbedPane1.setDoubleBuffered(true);
 
         btnAddAthorP1.setText("Add Author");
+        btnAddAthorP1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddAthorP1ActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Author's First Name");
 
@@ -294,6 +304,26 @@ public class DBGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * this will add new authors to the authors table.
+     *
+     * @param evt
+     */
+    private void btnAddAthorP1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddAthorP1ActionPerformed
+        if (txFNameP1.getText().length() > 0 && txLNameP1.getText().length() > 0) {
+            try {
+                this.connection.createStatement().executeUpdate("INSERT INTO Authors (FirstName, LastName) VALUES ('" + txFNameP1.getText() + "', '" + txLNameP1.getText() + "')");
+                JOptionPane.showMessageDialog(null, "The author " + txFNameP1.getText() + ", " + txLNameP1.getText() + " has been added successfully", null, JOptionPane.INFORMATION_MESSAGE);
+            } // AutoCloseable objects' close methods are called now  // AutoCloseable objects' close methods are called now 
+            catch (SQLException sqlException) {
+                JOptionPane.showMessageDialog(null, "uh oh, something went wrong.", null, JOptionPane.ERROR_MESSAGE);
+                sqlException.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Please add a valid first and last name for the author", null, JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnAddAthorP1ActionPerformed
 
     /**
      * @param args the command line arguments

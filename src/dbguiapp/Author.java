@@ -31,7 +31,7 @@ public class Author {
         return id;
     }
 
-    public Author(String fName, String lName, int id) {
+    public Author(String fName, String lName, Integer id) {
         this.fName = fName;
         this.lName = lName;
         this.id = id;

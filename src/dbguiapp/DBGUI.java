@@ -32,7 +32,7 @@ public class DBGUI extends javax.swing.JFrame {
 
         try {
             this.connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
-            getAuthorsList();
+            updateAuthorsCboxList();
         } // AutoCloseable objects' close methods are called now  // AutoCloseable objects' close methods are called now 
         catch (SQLException sqlException) {
             sqlException.printStackTrace();
@@ -40,17 +40,11 @@ public class DBGUI extends javax.swing.JFrame {
 
     }
 
-    private void executeQuery(String query) throws SQLException {
-        //Connect to the DataBase
-        //Connection connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
-        //Execute Queries
-        this.connection.createStatement().executeQuery(query);
-    }
-
-    private void getAuthorsList() throws SQLException {
-        //Connect to the DataBase
-        // connection = DriverManager.getConnection(DATABASE_URL, "deitel", "deitel");
-
+    /**
+     * This will update all the combo boxes with authors from the data base
+     * @throws SQLException 
+     */
+    private void updateAuthorsCboxList() throws SQLException {
         //Execute Querie
         ResultSet rs = this.connection.createStatement().executeQuery("SELECT FIRSTNAME, LASTNAME, AUTHORID FROM authors ORDER BY AUTHORID");
         cboxP2.removeAllItems();
@@ -60,7 +54,6 @@ public class DBGUI extends javax.swing.JFrame {
             cboxP2.addItem(new Author(rs.getString("FIRSTNAME"), rs.getString("LASTNAME"), rs.getInt("AUTHORID")));
             cboxP3.addItem(new Author(rs.getString("FIRSTNAME"), rs.getString("LASTNAME"), rs.getInt("AUTHORID")));
         }
-
     }
 
     /**
@@ -324,7 +317,7 @@ public class DBGUI extends javax.swing.JFrame {
         if (txFNameP1.getText().length() > 0 && txLNameP1.getText().length() > 0) {
             try {
                 this.connection.createStatement().executeUpdate("INSERT INTO Authors (FirstName, LastName) VALUES ('" + txFNameP1.getText() + "', '" + txLNameP1.getText() + "')");
-                JOptionPane.showMessageDialog(null, "The author " + txFNameP1.getText() + ", " + txLNameP1.getText() + " has been added successfully", null, JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "The author " + txFNameP1.getText() + " " + txLNameP1.getText() + " has been added successfully", null, JOptionPane.INFORMATION_MESSAGE);
             } catch (SQLException sqlException) {
                 JOptionPane.showMessageDialog(null, "uh oh, something went wrong.", null, JOptionPane.ERROR_MESSAGE);
                 sqlException.printStackTrace();
@@ -363,9 +356,9 @@ public class DBGUI extends javax.swing.JFrame {
                 //update data base
                 this.connection.createStatement().executeUpdate(sql);
                 //update the combo boxes with what is in the data base
-                getAuthorsList();
+                updateAuthorsCboxList();
                 //notify user of completion
-                JOptionPane.showMessageDialog(null, "The author " + txFNameP1.getText() + ", " + txLNameP1.getText() + " has been added successfully", null, JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "The author " + txFNameP2.getText() + " " + txLNameP2.getText() + " has been added successfully", null, JOptionPane.INFORMATION_MESSAGE);
             } catch (SQLException sqlException) {
                 //let user know of this did not work
                 JOptionPane.showMessageDialog(null, "uh oh, something went wrong.", null, JOptionPane.ERROR_MESSAGE);
@@ -383,7 +376,71 @@ public class DBGUI extends javax.swing.JFrame {
      * @param evt
      */
     private void btnAddTitleP3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddTitleP3ActionPerformed
-        // TODO add your handling code here:
+        //make sure there is an author selected
+        if (cboxP3.getItemAt(cboxP3.getSelectedIndex()) != null) {
+            //Create vars for better redability
+            String FirstName = cboxP3.getItemAt(cboxP3.getSelectedIndex()).getfName();
+            String LastName = cboxP3.getItemAt(cboxP3.getSelectedIndex()).getlName();
+            String ISBN = "";
+            String title = "";
+            String editionNumber = "";
+            String copyRightYear = "";
+            int ID = cboxP3.getItemAt(cboxP3.getSelectedIndex()).getId();
+
+            Boolean hasAllInfo = true;
+
+            //check user input before sql is done
+            if (txISBNP3.getText().length() > 0) {
+                ISBN = txISBNP3.getText();
+            } else {
+                hasAllInfo = false;
+            }
+
+            if (txTitleP3.getText().length() > 0) {
+                title = txTitleP3.getText();
+            } else {
+                hasAllInfo = false;
+            }
+
+            if (txENP3.getText().length() > 0) {
+                editionNumber = txENP3.getText();
+            } else {
+                hasAllInfo = false;
+            }
+
+            if (txCRYP3.getText().length() > 0) {
+                copyRightYear = txCRYP3.getText();
+            } else {
+                hasAllInfo = false;
+            }
+
+            //Make sure all info is entered to insure data is inserted proper
+            if (hasAllInfo) {
+                //Create sql statment
+                String insertIntoTITLES = "INSERT INTO TITLES (ISBN, TITLE, EDITIONNUMBER, COPYRIGHT) VALUES ('" + ISBN + "', '" + title + "', " + editionNumber + ",'" + copyRightYear + "')";
+                String insertIntoAuthorISBN = "INSERT INTO AUTHORISBN (AUTHORID, ISBN) VALUES (" + ID + ",'" + ISBN + "')";
+
+                try {
+                    //update data base
+                    this.connection.createStatement().executeUpdate(insertIntoTITLES);
+                    //update data base
+                    this.connection.createStatement().executeUpdate(insertIntoAuthorISBN);
+                    //update the combo boxes with what is in the data base
+                    updateAuthorsCboxList();
+                    //notify user of completion
+                    JOptionPane.showMessageDialog(null, "The title for author " + FirstName + " " + LastName + " has been added successfully", null, JOptionPane.INFORMATION_MESSAGE);
+                } catch (SQLException sqlException) {
+                    //let user know of this did not work
+                    JOptionPane.showMessageDialog(null, "uh oh, something went wrong.", null, JOptionPane.ERROR_MESSAGE);
+                    sqlException.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please fill in all fields", null, JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            //notify user they need to select author
+            JOptionPane.showMessageDialog(null, "Please select author", null, JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnAddTitleP3ActionPerformed
 
     /**

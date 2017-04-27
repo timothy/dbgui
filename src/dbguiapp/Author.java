@@ -6,7 +6,7 @@
 package dbguiapp;
 
 /**
- *
+ * This class was created to store database author objects.
  * @author Timothy Bradford
  */
 public class Author {

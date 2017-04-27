@@ -8,7 +8,6 @@ package dbguiapp;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -58,8 +57,8 @@ public class DBGUI extends javax.swing.JFrame {
         cboxP3.removeAllItems();
 
         while (rs.next()) {
-            cboxP2.addItem(rs.getString("LASTNAME") + ", " + rs.getString("FIRSTNAME"));
-            cboxP3.addItem(rs.getString("LASTNAME") + ", " + rs.getString("FIRSTNAME"));
+            cboxP2.addItem(new Author(rs.getString("FIRSTNAME"), rs.getString("LASTNAME"), rs.getInt("AUTHORID")));
+            cboxP3.addItem(new Author(rs.getString("FIRSTNAME"), rs.getString("LASTNAME"), rs.getInt("AUTHORID")));
         }
 
     }
@@ -150,8 +149,13 @@ public class DBGUI extends javax.swing.JFrame {
         jTabbedPane1.addTab("Add New Author", jPanel1);
 
         btnEditAuthP2.setText("Edit Author");
+        btnEditAuthP2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditAuthP2ActionPerformed(evt);
+            }
+        });
 
-        cboxP2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cboxP2.setMaximumRowCount(100);
 
         jLabel3.setText("The author that you want to edit =>>");
 
@@ -206,10 +210,16 @@ public class DBGUI extends javax.swing.JFrame {
         jTabbedPane1.addTab("Edit Existing Author", jPanel2);
 
         btnAddTitleP3.setText("Add Title");
+        btnAddTitleP3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddTitleP3ActionPerformed(evt);
+            }
+        });
 
         jLabel6.setText("The author for the new title =>>");
 
-        cboxP3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cboxP3.setMaximumRowCount(100);
+        cboxP3.setToolTipText("");
 
         jLabel7.setText("Title");
 
@@ -315,8 +325,7 @@ public class DBGUI extends javax.swing.JFrame {
             try {
                 this.connection.createStatement().executeUpdate("INSERT INTO Authors (FirstName, LastName) VALUES ('" + txFNameP1.getText() + "', '" + txLNameP1.getText() + "')");
                 JOptionPane.showMessageDialog(null, "The author " + txFNameP1.getText() + ", " + txLNameP1.getText() + " has been added successfully", null, JOptionPane.INFORMATION_MESSAGE);
-            } // AutoCloseable objects' close methods are called now  // AutoCloseable objects' close methods are called now 
-            catch (SQLException sqlException) {
+            } catch (SQLException sqlException) {
                 JOptionPane.showMessageDialog(null, "uh oh, something went wrong.", null, JOptionPane.ERROR_MESSAGE);
                 sqlException.printStackTrace();
             }
@@ -324,6 +333,58 @@ public class DBGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Please add a valid first and last name for the author", null, JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAddAthorP1ActionPerformed
+
+    /**
+     * Edit the existing information for an author.
+     *
+     * @param evt
+     */
+    private void btnEditAuthP2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditAuthP2ActionPerformed
+        //make sure there is an author selected
+        if (cboxP2.getItemAt(cboxP2.getSelectedIndex()) != null) {
+            //Create vars for better redability
+            String FirstName = cboxP2.getItemAt(cboxP2.getSelectedIndex()).getfName();
+            String LastName = cboxP2.getItemAt(cboxP2.getSelectedIndex()).getlName();
+            int ID = cboxP2.getItemAt(cboxP2.getSelectedIndex()).getId();
+
+            //check user input and add any changes...
+            if (txFNameP2.getText().length() > 0) {
+                FirstName = txFNameP2.getText();
+            }
+
+            if (txLNameP2.getText().length() > 0) {
+                LastName = txLNameP2.getText();
+            }
+
+            //Create sql statment
+            String sql = "UPDATE Authors SET FirstName = '" + FirstName + "', LastName = '" + LastName + "' WHERE authorid = " + ID;
+
+            try {
+                //update data base
+                this.connection.createStatement().executeUpdate(sql);
+                //update the combo boxes with what is in the data base
+                getAuthorsList();
+                //notify user of completion
+                JOptionPane.showMessageDialog(null, "The author " + txFNameP1.getText() + ", " + txLNameP1.getText() + " has been added successfully", null, JOptionPane.INFORMATION_MESSAGE);
+            } catch (SQLException sqlException) {
+                //let user know of this did not work
+                JOptionPane.showMessageDialog(null, "uh oh, something went wrong.", null, JOptionPane.ERROR_MESSAGE);
+                sqlException.printStackTrace();
+            }
+        } else {
+            //notify user they need to select author
+            JOptionPane.showMessageDialog(null, "Please select author", null, JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnEditAuthP2ActionPerformed
+
+    /**
+     * Add a new title for an author. (Remember that the book must have an entry in the AuthorISBN table).
+     *
+     * @param evt
+     */
+    private void btnAddTitleP3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddTitleP3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAddTitleP3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -364,8 +425,8 @@ public class DBGUI extends javax.swing.JFrame {
     private javax.swing.JButton btnAddAthorP1;
     private javax.swing.JButton btnAddTitleP3;
     private javax.swing.JButton btnEditAuthP2;
-    private javax.swing.JComboBox<String> cboxP2;
-    private javax.swing.JComboBox<String> cboxP3;
+    private javax.swing.JComboBox<Author> cboxP2;
+    private javax.swing.JComboBox<Author> cboxP3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
